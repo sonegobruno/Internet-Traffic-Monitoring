@@ -18,9 +18,9 @@ export interface ICostumerInternetInformation {
 
 const Main:React.FC = () => {
 
-    const [ pppoe, setPPPoE ] = useState('');
-    const [ loop, setLoop ] = useState(false);
-    const [ data, setData ] = useState<ICostumerInternetInformation>({} as ICostumerInternetInformation);
+  const [ pppoe, setPPPoE ] = useState('');
+  const [ loop, setLoop ] = useState(false);
+  const [ data, setData ] = useState<ICostumerInternetInformation>({} as ICostumerInternetInformation);
 
     const tableContent = useMemo(() => {
       return [
@@ -38,7 +38,7 @@ const Main:React.FC = () => {
     },[loop, data,])
 
     const handleDataApi = useCallback(async () => {
-        if(loop === true ) {
+        if(loop) {
             try {
 
                 const { download, upload, timeResponseServer, consultaStart } = await getSpeedInformation(pppoe);
@@ -55,31 +55,33 @@ const Main:React.FC = () => {
 
             } catch (err) {
                 alert(err.message);
-                setPPPoE('');
-                setLoop(false);
+                handleStopInformation();
             }
         }
-    },[loop, pppoe]);
+    },[loop]);
 
     const handleLoop = useCallback((event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setLoop(!loop);
 
-        if(loop === false) {
-            setLoop(true);
-        } else {
-            setLoop(false);
-            setTimeout(() => {
-                setPPPoE('');
-                setData({
-                  pppoe: '',
-                  download: '',
-                  consultaStart: '',
-                  timeResponseServer: '',
-                  upload: '',
-                });
-            }, 2000);
+        if (loop) {
+          handleStopInformation();
         }
     },[loop]);
+
+    const handleStopInformation = useCallback(() => {
+      setPPPoE('');
+      setLoop(false);
+      setTimeout(() => {
+        setData({
+          pppoe: '',
+          download: '',
+          consultaStart: '',
+          timeResponseServer: '',
+          upload: '',
+        });
+      }, 2000);
+    },[])
 
 
     return (
